@@ -1,4 +1,4 @@
-
+#include <mayor_price_level.mqh>
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -8,7 +8,7 @@ int OnInit()
 //---
    
 //---
-return(INIT_SUCCEEDED);
+    return(INIT_SUCCEEDED);
 }
 //+------------------------------------------------------------------+
 //| Expert deinitialization function                                 |
