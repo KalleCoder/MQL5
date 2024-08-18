@@ -1,11 +1,45 @@
 #ifndef __BULLISH_LEVEL_MQH__
 #define __BULLISH_LEVEL_MQH__
 
-static const int MAYOR_LEVEL_POINTS{3};
+#include "high_price.mqh"
 
-static const int candle_travel_distance{150};
+void bullish_price_points()
+{
+    double current_opening_price = iOpen(NULL, PERIOD_M15, 0);
+    double previous_closing_price = iClose(NULL, PERIOD_M15, 1);
+    double current_closing_price = iClose(NULL, PERIOD_M15, 0); // Timeframe on current chart (second 0)
+    double current_high_price = iHigh(NULL, PERIOD_M15, 0);
 
-static bool MAYOR_PRICE_LEVEL_BULLISH{false};
+    bool negative_candle{false}; // dont want to get accidental points from a closed candle that is very small
+
+    if (current_closing_price - current_opening_price < 0)
+    {
+        negative_candle = true;
+    }
+
+    // ADD SOMETHIGN WHERE WERE TINY BODIES DONT ADD A POINT
+
+    if (MathAbs(HIGH_PRICE_CLOSE - current_closing_price) < 0.00015 && negative_candle == false)
+    {
+        HIGH_PRICE_CLOSE += 1;
+    }
+    else if (MathAbs(HIGH_PRICE_CLOSE - current_high_price) < 0.00015)
+    {
+        HIGH_PRICE_CLOSE += 1;
+    }
+    else if (MathAbs(HIGH_PRICE_PEAK - current_closing_price) < 0.00015 && negative_candle == false)
+    {
+        HIGH_PRICE_PEAK += 1;
+    }
+    else if (MathAbs(HIGH_PRICE_PEAK - current_high_price) < 0.00015)
+    {
+        HIGH_PRICE_PEAK += 1;
+    }
+    else
+    {
+        ;
+    }
+}
 
 /**
  * @brief Returns true if finding MAYOR_LEVEL_POINTS
@@ -23,22 +57,6 @@ bool bullish_price_level_found()
     double current_closing_price = iClose(NULL, PERIOD_M15, 0); // Timeframe on current chart (second 0)
     double current_high_price = iHigh(NULL, PERIOD_M15, 0);
 
-    // the bullish road
-    if (bullish_mayor_price_level(current_closing_price))
-    {
-        if (bullish_previous_candle_filter(current_closing_price))
-        {
-            printf("Found a potential bullish mayor price level\n");
-            points = bullish_level_mayor_price_level_peaks();
-        }
-    }
-
-    if (points == MAYOR_LEVEL_POINTS)
-    {
-        PrintFormat("Found a bullish mayor price level at: %.5f", current_closing_price);
-        status = true;
-    }
-
     return status;
 }
 
@@ -52,7 +70,7 @@ bool bullish_mayor_price_level(double price)
 {
     bool status{true};
 
-    for (int i = 0; i < candle_travel_distance; i++) // the distance to look back
+    for (int i = 0; i < TRAVEL_DISTANCE; i++) // the distance to look back
     {
 
         if ((iClose(NULL, PERIOD_M15, i) - price) > 0.0005) // a larger view of it
@@ -103,7 +121,7 @@ int bullish_level_mayor_price_level_peaks()
 
     bool found_close{false};
 
-    for (int i = 10; i < candle_travel_distance; i++)
+    for (int i = 10; i < TRAVEL_DISTANCE; i++)
     {
         double close_price = iClose(NULL, PERIOD_M15, i);
         if (MathAbs(close_price - current_closing_price) < 0.00015) // NEED TO ADD A LESSER STRICT FILTER FOR OLDER CANDLES

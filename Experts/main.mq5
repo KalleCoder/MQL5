@@ -11,6 +11,8 @@ int OnInit()
 {
     //---
     PREVIOUS_CANDLE_TIME = 0;
+
+    startup_finding_high_prices();
     //---
     return (INIT_SUCCEEDED);
 }
@@ -32,7 +34,7 @@ void OnTick()
     {
         PREVIOUS_CANDLE_TIME = current_candle_time; // making the above if statement work as intended
 
-        BULLISH_MAYOR_LEVEL = bullish_price_level_found();
+        new_high_price();
     }
 }
 //+------------------------------------------------------------------+
